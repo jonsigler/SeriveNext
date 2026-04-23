@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}Agent Dashboard · SeriveNext{% endblock %}
+{% block content %}
+<h1 class="text-xl font-semibold mb-4">Dashboard</h1>
+<div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
+  {% for label, key, cls in [
+    ("Open tickets", "open", "text-slate-900"),
+    ("Assigned to me", "mine", "text-emerald-700"),
+    ("Unassigned", "unassigned", "text-orange-700"),
+    ("P1 (critical)", "p1", "text-red-700"),
+    ("AI auto-resolved", "auto_resolved", "text-indigo-700"),
+  ] %}
+  <div class="bg-white rounded-xl border shadow-sm p-4">
+    <div class="text-xs uppercase text-slate-500 tracking-wide">{{ label }}</div>
+    <div class="text-3xl font-semibold mt-1 {{ cls }}">{{ stats[key] }}</div>
+  </div>
+  {% endfor %}
+</div>
+
+<div class="bg-white rounded-xl border shadow-sm">
+  <div class="px-6 pt-5 pb-2 flex items-center justify-between">
+    <h2 class="font-semibold">Recently updated</h2>
+    <a href="/agent/tickets?view=open" class="text-sm text-emerald-700 hover:underline">View queue →</a>
+  </div>
+  <table class="w-full text-sm">
+    <thead class="text-left text-slate-500 border-b">
+      <tr>
+        <th class="px-6 py-2">Number</th>
+        <th class="py-2">Subject</th>
+        <th class="py-2">Requester</th>
+        <th class="py-2">Status</th>
+        <th class="py-2">Priority</th>
+        <th class="py-2">Assignee</th>
+        <th class="px-6 py-2">Updated</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for t in recent %}
+      <tr class="border-b last:border-b-0 hover:bg-slate-50">
+        <td class="px-6 py-2 font-mono text-xs"><a href="/agent/tickets/{{ t.id }}" class="text-emerald-700 hover:underline">{{ t.number }}</a></td>
+        <td class="py-2">{{ t.subject }}</td>
+        <td class="py-2">{{ t.requester.full_name }}</td>
+        <td class="py-2"><span class="text-xs rounded px-2 py-0.5 {{ t.status | status_badge }}">{{ t.status.value | pretty }}</span></td>
+        <td class="py-2"><span class="text-xs rounded px-2 py-0.5 {{ t.priority | priority_badge }}">{{ t.priority.value.upper() }}</span></td>
+        <td class="py-2">{{ t.assignee.full_name if t.assignee else "—" }}</td>
+        <td class="px-6 py-2 text-slate-500">{{ t.updated_at.strftime("%b %d, %H:%M") }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

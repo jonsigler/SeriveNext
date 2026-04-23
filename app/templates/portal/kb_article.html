@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}{{ article.title }} · KB{% endblock %}
+{% block content %}
+<div class="max-w-3xl mx-auto bg-white rounded-xl shadow-sm border p-6">
+  <p class="text-xs text-slate-500 uppercase tracking-wide">{{ article.category }}</p>
+  <h1 class="text-2xl font-semibold mt-1">{{ article.title }}</h1>
+  <p class="text-slate-600 mt-2">{{ article.summary }}</p>
+  <hr class="my-4" />
+  <div class="prose-simple ticket-body text-sm">{{ article.body }}</div>
+  <div class="mt-6 flex gap-3 text-sm">
+    <a href="/portal/kb" class="text-slate-500 hover:underline">← Back to knowledge base</a>
+    <a href="/portal/new" class="text-emerald-700 hover:underline">This didn't help, open a ticket</a>
+  </div>
+</div>
+{% endblock %}

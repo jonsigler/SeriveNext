@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Register · SeriveNext{% endblock %}
+{% block content %}
+<div class="max-w-sm mx-auto mt-16 bg-white rounded-xl shadow p-8 border">
+  <h1 class="text-2xl font-semibold mb-4">Create an account</h1>
+  {% if error %}<div class="bg-red-50 text-red-700 text-sm p-2 rounded mb-4">{{ error }}</div>{% endif %}
+  <form method="post" action="/register" class="space-y-4">
+    <div>
+      <label class="block text-sm font-medium text-slate-700">Full name</label>
+      <input name="full_name" required class="mt-1 w-full border rounded px-3 py-2" />
+    </div>
+    <div>
+      <label class="block text-sm font-medium text-slate-700">Email</label>
+      <input name="email" type="email" required class="mt-1 w-full border rounded px-3 py-2" />
+    </div>
+    <div>
+      <label class="block text-sm font-medium text-slate-700">Department</label>
+      <input name="department" class="mt-1 w-full border rounded px-3 py-2" />
+    </div>
+    <div>
+      <label class="block text-sm font-medium text-slate-700">Password</label>
+      <input name="password" type="password" required minlength="6" class="mt-1 w-full border rounded px-3 py-2" />
+    </div>
+    <button class="w-full bg-emerald-600 hover:bg-emerald-700 text-white rounded py-2 font-medium">Register</button>
+  </form>
+  <p class="text-sm text-slate-500 mt-4">Already have one? <a class="text-emerald-700 underline" href="/login">Sign in</a></p>
+</div>
+{% endblock %}

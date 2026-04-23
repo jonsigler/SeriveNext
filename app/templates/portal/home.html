@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block title %}My Tickets · SeriveNext{% endblock %}
+{% block content %}
+<div class="grid md:grid-cols-3 gap-6">
+  <section class="md:col-span-2 space-y-6">
+    <div class="bg-white rounded-xl shadow-sm border p-6">
+      <div class="flex items-start justify-between mb-4">
+        <div>
+          <h1 class="text-xl font-semibold">Hello, {{ user.full_name.split(' ')[0] }}</h1>
+          <p class="text-slate-500 text-sm">Need help? Open a ticket and our AI agent will take a first look right away.</p>
+        </div>
+        <a href="/portal/new" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded text-sm font-medium">New ticket</a>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-xl shadow-sm border">
+      <h2 class="px-6 pt-5 pb-2 font-semibold">My recent tickets</h2>
+      {% if my_tickets %}
+      <table class="w-full text-sm">
+        <thead class="text-left text-slate-500 border-b">
+          <tr>
+            <th class="px-6 py-2">Number</th>
+            <th class="py-2">Subject</th>
+            <th class="py-2">Status</th>
+            <th class="py-2">Priority</th>
+            <th class="px-6 py-2">Updated</th>
+          </tr>
+        </thead>
+        <tbody>
+        {% for t in my_tickets %}
+          <tr class="border-b last:border-b-0 hover:bg-slate-50">
+            <td class="px-6 py-2 font-mono text-xs"><a href="/portal/tickets/{{ t.id }}" class="text-emerald-700 hover:underline">{{ t.number }}</a></td>
+            <td class="py-2">{{ t.subject }}</td>
+            <td class="py-2"><span class="text-xs rounded px-2 py-0.5 {{ t.status | status_badge }}">{{ t.status.value | pretty }}</span></td>
+            <td class="py-2"><span class="text-xs rounded px-2 py-0.5 {{ t.priority | priority_badge }}">{{ t.priority.value.upper() }}</span></td>
+            <td class="px-6 py-2 text-slate-500">{{ t.updated_at.strftime("%b %d, %H:%M") }}</td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+      <div class="px-6 py-8 text-slate-500 text-sm">You haven't opened any tickets yet.</div>
+      {% endif %}
+    </div>
+  </section>
+
+  <aside class="space-y-6">
+    <div class="bg-white rounded-xl shadow-sm border p-6">
+      <h2 class="font-semibold mb-2">Search the knowledge base</h2>
+      <form action="/portal/kb" method="get">
+        <input name="q" placeholder="e.g. reset my password" class="w-full border rounded px-3 py-2 text-sm" />
+      </form>
+    </div>
+    <div class="bg-white rounded-xl shadow-sm border p-6">
+      <h2 class="font-semibold mb-2">Popular articles</h2>
+      <ul class="text-sm space-y-1">
+      {% for a in popular_articles %}
+        <li><a class="text-emerald-700 hover:underline" href="/portal/kb/{{ a.id }}">{{ a.title }}</a></li>
+      {% else %}
+        <li class="text-slate-500">No articles yet.</li>
+      {% endfor %}
+      </ul>
+    </div>
+  </aside>
+</div>
+{% endblock %}

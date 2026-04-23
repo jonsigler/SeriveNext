@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Knowledge Base · SeriveNext{% endblock %}
+{% block content %}
+<div class="max-w-3xl mx-auto">
+  <h1 class="text-xl font-semibold mb-4">Knowledge Base</h1>
+  <form class="mb-4">
+    <input name="q" value="{{ q }}" class="w-full border rounded px-3 py-2" placeholder="Search articles" />
+  </form>
+  <ul class="divide-y bg-white border rounded-xl shadow-sm">
+    {% for a in articles %}
+    <li class="p-4">
+      <a href="/portal/kb/{{ a.id }}" class="font-medium text-emerald-700 hover:underline">{{ a.title }}</a>
+      <p class="text-sm text-slate-500">{{ a.summary }}</p>
+      <p class="text-xs text-slate-400 mt-1">{{ a.category }} · {{ a.views }} views</p>
+    </li>
+    {% else %}
+    <li class="p-6 text-sm text-slate-500">No articles found.</li>
+    {% endfor %}
+  </ul>
+</div>
+{% endblock %}
