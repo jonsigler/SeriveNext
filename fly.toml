@@ -1,45 +1,30 @@
-# Fly.io configuration for SeriveNext.
+# fly.toml app configuration file generated for serivenext-yv-kqa on 2026-04-23T21:02:52Z
 #
-# One-time setup:
-#   1. Install flyctl:   curl -L https://fly.io/install.sh | sh
-#   2. Sign in:          fly auth signup   # (or: fly auth login)
-#   3. Launch (will prompt for an app name and region, and pick up this file):
-#        fly launch --copy-config --no-deploy
-#      Accept the defaults; it will create the app but not deploy yet.
-#   4. Create a volume for the SQLite database (must match [[mounts]] below):
-#        fly volumes create serivenext_data --size 1
-#   5. Set a real session secret:
-#        fly secrets set SECRET_KEY="$(openssl rand -hex 32)"
-#   6. Deploy:
-#        fly deploy
-#   7. Open it:
-#        fly open
+# See https://fly.io/docs/reference/configuration/ for information about how to use this file.
 #
-# That gives you an HTTPS URL like https://<your-app>.fly.dev that end users
-# can actually reach.
 
-# Change this if you want a different subdomain; `fly launch` will rewrite it.
-app = "serivenext"
-primary_region = "iad"
+app = 'serivenext-yv-kqa'
+primary_region = 'ams'
 
 [build]
 
 [env]
-  SEED_ON_START = "1"
-  # DATABASE_URL is set in the Dockerfile to point at the mounted volume.
+  SEED_ON_START = '1'
+
+[[mounts]]
+  source = 'serivenext_data'
+  destination = '/data'
 
 [http_service]
-  internal_port = 8000
+  internal_port = 8080
   force_https = true
-  auto_stop_machines = "stop"
+  auto_stop_machines = 'stop'
   auto_start_machines = true
   min_machines_running = 0
 
-[[mounts]]
-  source = "serivenext_data"
-  destination = "/data"
-
 [[vm]]
-  size = "shared-cpu-1x"
-  memory = "512mb"
+  size = 'shared-cpu-1x'
+  memory = '512mb'
+  cpu_kind = 'shared'
   cpus = 1
+  memory_mb = 256
