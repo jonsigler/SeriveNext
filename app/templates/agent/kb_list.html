@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block title %}Knowledge Base · SeriveNext{% endblock %}
+{% block content %}
+<div class="flex items-center justify-between mb-4">
+  <h1 class="text-xl font-semibold">Knowledge Base</h1>
+  <a href="/agent/kb/new" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded text-sm">+ New article</a>
+</div>
+<div class="bg-white border rounded-xl shadow-sm">
+  <table class="w-full text-sm">
+    <thead class="text-left text-slate-500 border-b">
+      <tr>
+        <th class="px-4 py-2">Title</th>
+        <th class="py-2">Category</th>
+        <th class="py-2">Published</th>
+        <th class="py-2">Views</th>
+        <th class="py-2">Updated</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for a in articles %}
+      <tr class="border-b last:border-b-0 hover:bg-slate-50">
+        <td class="px-4 py-2"><a href="/agent/kb/{{ a.id }}" class="text-emerald-700 hover:underline">{{ a.title }}</a></td>
+        <td class="py-2">{{ a.category }}</td>
+        <td class="py-2">{{ "Yes" if a.published else "Draft" }}</td>
+        <td class="py-2">{{ a.views }}</td>
+        <td class="py-2 text-slate-500">{{ a.updated_at.strftime("%b %d, %H:%M") }}</td>
+      </tr>
+      {% else %}
+      <tr><td colspan="5" class="p-6 text-slate-500 text-sm text-center">No articles yet.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

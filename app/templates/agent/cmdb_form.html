@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% block title %}{% if ci %}{{ ci.name }}{% else %}New CI{% endif %}{% endblock %}
+{% block content %}
+<div class="max-w-3xl mx-auto bg-white border rounded-xl shadow-sm p-6">
+  <h1 class="text-xl font-semibold mb-4">{% if ci %}Edit {{ ci.name }}{% else %}New configuration item{% endif %}</h1>
+  <form method="post" action="{% if ci %}/agent/cmdb/{{ ci.id }}/update{% else %}/agent/cmdb/new{% endif %}" class="grid md:grid-cols-2 gap-4 text-sm">
+    <div class="md:col-span-2">
+      <label class="block text-xs text-slate-500">Name</label>
+      <input name="name" required value="{{ ci.name if ci else '' }}" class="w-full border rounded px-2 py-1" />
+    </div>
+    <div>
+      <label class="block text-xs text-slate-500">Type</label>
+      <select name="ci_type" class="w-full border rounded px-2 py-1">
+        {% for t in ci_types %}
+          <option value="{{ t.value }}" {% if ci and ci.ci_type==t %}selected{% endif %}>{{ t.value|pretty }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div>
+      <label class="block text-xs text-slate-500">Status</label>
+      <select name="status" class="w-full border rounded px-2 py-1">
+        {% for s in ["in_use","in_stock","maintenance","retired"] %}
+          <option value="{{ s }}" {% if ci and ci.status==s %}selected{% endif %}>{{ s|pretty }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div>
+      <label class="block text-xs text-slate-500">Asset tag</label>
+      <input name="asset_tag" value="{{ ci.asset_tag or '' if ci else '' }}" class="w-full border rounded px-2 py-1" />
+    </div>
+    <div>
+      <label class="block text-xs text-slate-500">Serial number</label>
+      <input name="serial_number" value="{{ ci.serial_number or '' if ci else '' }}" class="w-full border rounded px-2 py-1" />
+    </div>
+    <div>
+      <label class="block text-xs text-slate-500">Manufacturer</label>
+      <input name="manufacturer" value="{{ ci.manufacturer or '' if ci else '' }}" class="w-full border rounded px-2 py-1" />
+    </div>
+    <div>
+      <label class="block text-xs text-slate-500">Model</label>
+      <input name="model" value="{{ ci.model or '' if ci else '' }}" class="w-full border rounded px-2 py-1" />
+    </div>
+    <div>
+      <label class="block text-xs text-slate-500">Location</label>
+      <input name="location" value="{{ ci.location or '' if ci else '' }}" class="w-full border rounded px-2 py-1" />
+    </div>
+    <div>
+      <label class="block text-xs text-slate-500">IP address</label>
+      <input name="ip_address" value="{{ ci.ip_address or '' if ci else '' }}" class="w-full border rounded px-2 py-1" />
+    </div>
+    <div>
+      <label class="block text-xs text-slate-500">OS</label>
+      <input name="os" value="{{ ci.os or '' if ci else '' }}" class="w-full border rounded px-2 py-1" />
+    </div>
+    <div>
+      <label class="block text-xs text-slate-500">Owner (user id)</label>
+      <input name="owner_id" value="{{ ci.owner_id or '' if ci else '' }}" class="w-full border rounded px-2 py-1" />
+    </div>
+    <div class="md:col-span-2">
+      <label class="block text-xs text-slate-500">Description</label>
+      <textarea name="description" rows="3" class="w-full border rounded px-2 py-1">{{ ci.description or '' if ci else '' }}</textarea>
+    </div>
+    <div class="md:col-span-2 flex gap-2">
+      <button class="bg-emerald-600 hover:bg-emerald-700 text-white rounded px-4 py-1.5">Save</button>
+      <a href="/agent/cmdb" class="text-slate-500 px-3 py-1.5">Cancel</a>
+    </div>
+  </form>
+</div>
+{% endblock %}
