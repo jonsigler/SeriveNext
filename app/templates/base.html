@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{% block title %}SeriveNext{% endblock %}</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/htmx.org@1.9.12"></script>
+  <script defer src="https://unpkg.com/alpinejs@3.14.1/dist/cdn.min.js"></script>
+  <link rel="stylesheet" href="/static/css/app.css" />
+</head>
+<body class="bg-slate-50 text-slate-900 min-h-screen flex flex-col">
+  {% if user %}
+  <nav class="bg-slate-900 text-slate-100">
+    <div class="max-w-7xl mx-auto px-4 py-2 flex items-center justify-between">
+      <div class="flex items-center gap-6">
+        <a href="/" class="font-semibold tracking-tight text-lg">
+          <span class="text-emerald-400">Serive</span>Next
+        </a>
+        {% if user.is_agent %}
+          <a href="/agent" class="text-sm hover:text-emerald-300">Dashboard</a>
+          <a href="/agent/tickets?view=open" class="text-sm hover:text-emerald-300">Queue</a>
+          <a href="/agent/cmdb" class="text-sm hover:text-emerald-300">CMDB</a>
+          <a href="/agent/kb" class="text-sm hover:text-emerald-300">Knowledge</a>
+        {% else %}
+          <a href="/portal" class="text-sm hover:text-emerald-300">My Tickets</a>
+          <a href="/portal/new" class="text-sm hover:text-emerald-300">New Ticket</a>
+          <a href="/portal/kb" class="text-sm hover:text-emerald-300">Knowledge</a>
+        {% endif %}
+      </div>
+      <div class="flex items-center gap-4 text-sm">
+        <span class="opacity-80">{{ user.full_name }} · {{ user.role.value|pretty }}</span>
+        <form action="/logout" method="post">
+          <button class="underline opacity-80 hover:opacity-100">Sign out</button>
+        </form>
+      </div>
+    </div>
+  </nav>
+  {% endif %}
+
+  <main class="flex-1">
+    <div class="max-w-7xl mx-auto px-4 py-6">
+      {% block content %}{% endblock %}
+    </div>
+  </main>
+
+  <footer class="text-center text-xs text-slate-400 py-4">
+    SeriveNext · Open-source IT service management · FastAPI + SQLAlchemy + HTMX
+  </footer>
+</body>
+</html>

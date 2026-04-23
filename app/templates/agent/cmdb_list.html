@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}CMDB · SeriveNext{% endblock %}
+{% block content %}
+<div class="flex items-center justify-between mb-4">
+  <h1 class="text-xl font-semibold">Configuration Management Database</h1>
+  <a href="/agent/cmdb/new" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded text-sm">+ New CI</a>
+</div>
+
+<div class="bg-white border rounded-xl shadow-sm">
+  <form class="p-4 flex flex-wrap gap-2 border-b text-sm">
+    <input name="q" value="{{ q }}" placeholder="Name, tag, serial, IP…" class="border rounded px-2 py-1 flex-1 min-w-48" />
+    <select name="ci_type" class="border rounded px-2 py-1">
+      <option value="">Any type</option>
+      {% for t in ci_types %}
+        <option value="{{ t.value }}" {% if ci_type==t.value %}selected{% endif %}>{{ t.value|pretty }}</option>
+      {% endfor %}
+    </select>
+    <button class="bg-slate-800 text-white rounded px-3 py-1">Search</button>
+  </form>
+  <table class="w-full text-sm">
+    <thead class="text-left text-slate-500 border-b">
+      <tr>
+        <th class="px-4 py-2">Name</th>
+        <th class="py-2">Type</th>
+        <th class="py-2">Asset tag</th>
+        <th class="py-2">Serial</th>
+        <th class="py-2">Owner</th>
+        <th class="py-2">IP</th>
+        <th class="py-2">Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for ci in cis %}
+      <tr class="border-b last:border-b-0 hover:bg-slate-50">
+        <td class="px-4 py-2"><a href="/agent/cmdb/{{ ci.id }}" class="text-emerald-700 hover:underline">{{ ci.name }}</a></td>
+        <td class="py-2">{{ ci.ci_type.value|pretty }}</td>
+        <td class="py-2 font-mono text-xs">{{ ci.asset_tag or "—" }}</td>
+        <td class="py-2 font-mono text-xs">{{ ci.serial_number or "—" }}</td>
+        <td class="py-2">{{ ci.owner.full_name if ci.owner else "—" }}</td>
+        <td class="py-2 font-mono text-xs">{{ ci.ip_address or "—" }}</td>
+        <td class="py-2">{{ ci.status|pretty }}</td>
+      </tr>
+      {% else %}
+      <tr><td colspan="7" class="p-6 text-slate-500 text-sm text-center">No CIs match the filters.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

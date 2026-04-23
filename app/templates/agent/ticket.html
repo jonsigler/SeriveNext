@@ -1,0 +1,151 @@
+{% extends "base.html" %}
+{% block title %}{{ ticket.number }} · {{ ticket.subject }}{% endblock %}
+{% block content %}
+<div class="grid md:grid-cols-3 gap-6">
+  <div class="md:col-span-2 space-y-6">
+    <div class="bg-white rounded-xl border shadow-sm p-6">
+      <div class="flex items-start justify-between">
+        <div>
+          <p class="text-xs font-mono text-slate-500">{{ ticket.number }}</p>
+          <h1 class="text-xl font-semibold">{{ ticket.subject }}</h1>
+          <p class="text-xs text-slate-500 mt-1">From {{ ticket.requester.full_name }} · {{ ticket.created_at.strftime("%b %d, %Y %H:%M") }} · via {{ ticket.source.value|pretty }}</p>
+        </div>
+        <div class="flex gap-2">
+          <span class="text-xs rounded px-2 py-0.5 {{ ticket.status | status_badge }}">{{ ticket.status.value|pretty }}</span>
+          <span class="text-xs rounded px-2 py-0.5 {{ ticket.priority | priority_badge }}">{{ ticket.priority.value.upper() }}</span>
+        </div>
+      </div>
+      <div class="mt-4 ticket-body text-sm">{{ ticket.description }}</div>
+      {% if ticket.affected_ci %}
+      <div class="mt-3 text-xs text-slate-500">
+        Affected asset:
+        <a class="text-emerald-700 hover:underline" href="/agent/cmdb/{{ ticket.affected_ci.id }}">{{ ticket.affected_ci.name }}</a>
+      </div>
+      {% endif %}
+    </div>
+
+    {% if ticket.ai_suggestion %}
+    <div class="bg-indigo-50 border border-indigo-200 rounded-xl p-6">
+      <div class="flex items-start justify-between">
+        <div>
+          <h2 class="font-semibold text-indigo-800">AI agent suggestion</h2>
+          <p class="text-xs text-indigo-700">Confidence: {{ ((ticket.ai_confidence or 0) * 100) | round(0) }}% {% if ticket.ai_auto_resolved %}· autonomously resolved{% endif %}</p>
+        </div>
+        <div class="flex gap-2">
+          <form method="post" action="/agent/tickets/{{ ticket.id }}/ai/retriage">
+            <button class="text-xs border border-indigo-300 rounded px-2 py-1 hover:bg-indigo-100">Re-run triage</button>
+          </form>
+          <form method="post" action="/agent/tickets/{{ ticket.id }}/ai/apply">
+            <button class="text-xs bg-indigo-600 text-white rounded px-2 py-1 hover:bg-indigo-700">Send to requester</button>
+          </form>
+        </div>
+      </div>
+      <div class="mt-3 ticket-body text-sm">{{ ticket.ai_suggestion }}</div>
+    </div>
+    {% else %}
+    <form method="post" action="/agent/tickets/{{ ticket.id }}/ai/retriage" class="bg-white border rounded-xl p-4">
+      <button class="text-sm bg-indigo-600 text-white rounded px-3 py-1 hover:bg-indigo-700">Run AI triage</button>
+    </form>
+    {% endif %}
+
+    <div class="bg-white rounded-xl border shadow-sm">
+      <h2 class="px-6 pt-5 pb-2 font-semibold">Activity</h2>
+      <ul class="divide-y">
+        {% for e in ticket.events %}
+        <li class="px-6 py-3 text-sm">
+          <div class="flex items-center gap-2 text-xs text-slate-500">
+            {% if e.kind == "ai" %}
+              <span class="bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded">AI Agent</span>
+            {% elif e.kind == "comment" %}
+              <span class="bg-slate-100 text-slate-700 px-2 py-0.5 rounded">{{ e.author.full_name if e.author else "System" }}</span>
+              {% if e.is_internal %}<span class="bg-amber-100 text-amber-700 px-2 py-0.5 rounded">Internal</span>{% endif %}
+            {% else %}
+              <span class="bg-slate-100 text-slate-700 px-2 py-0.5 rounded">{{ e.kind|pretty }}</span>
+            {% endif %}
+            <span>{{ e.created_at.strftime("%b %d, %H:%M") }}</span>
+          </div>
+          <div class="ticket-body mt-1">{{ e.body }}</div>
+        </li>
+        {% endfor %}
+      </ul>
+    </div>
+
+    <div class="bg-white rounded-xl border shadow-sm p-6 space-y-4">
+      <form method="post" action="/agent/tickets/{{ ticket.id }}/comment" class="space-y-2">
+        <h3 class="font-semibold text-sm">Add a comment</h3>
+        <textarea name="body" rows="4" required class="w-full border rounded px-3 py-2 text-sm"></textarea>
+        <div class="flex items-center gap-4">
+          <label class="text-xs"><input type="checkbox" name="internal" value="1" /> Internal (hidden from requester)</label>
+          <button class="bg-emerald-600 hover:bg-emerald-700 text-white rounded px-4 py-1.5 text-sm font-medium">Post</button>
+        </div>
+      </form>
+
+      <hr />
+
+      <form method="post" action="/agent/tickets/{{ ticket.id }}/resolve" class="space-y-2">
+        <h3 class="font-semibold text-sm">Resolve ticket</h3>
+        <textarea name="resolution" rows="3" required class="w-full border rounded px-3 py-2 text-sm" placeholder="What did you do to resolve this?"></textarea>
+        <button class="bg-slate-800 hover:bg-slate-900 text-white rounded px-4 py-1.5 text-sm font-medium">Mark resolved</button>
+      </form>
+    </div>
+  </div>
+
+  <aside class="space-y-4">
+    <div class="bg-white border rounded-xl shadow-sm p-6">
+      <h3 class="font-semibold text-sm mb-3">Properties</h3>
+      <form method="post" action="/agent/tickets/{{ ticket.id }}/update" class="space-y-3 text-sm">
+        <div>
+          <label class="block text-xs text-slate-500">Status</label>
+          <select name="status" class="w-full border rounded px-2 py-1">
+            {% for s in statuses %}
+              <option value="{{ s.value }}" {% if ticket.status==s %}selected{% endif %}>{{ s.value|pretty }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs text-slate-500">Priority</label>
+          <select name="priority" class="w-full border rounded px-2 py-1">
+            {% for p in priorities %}
+              <option value="{{ p.value }}" {% if ticket.priority==p %}selected{% endif %}>{{ p.value.upper() }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs text-slate-500">Category</label>
+          <select name="category" class="w-full border rounded px-2 py-1">
+            {% for c in categories %}
+              <option value="{{ c.value }}" {% if ticket.category==c %}selected{% endif %}>{{ c.value|pretty }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs text-slate-500">Assignee</label>
+          <select name="assignee_id" class="w-full border rounded px-2 py-1">
+            <option value="none">Unassigned</option>
+            {% for a in agents %}
+              <option value="{{ a.id }}" {% if ticket.assignee_id==a.id %}selected{% endif %}>{{ a.full_name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs text-slate-500">Affected CI</label>
+          <select name="affected_ci_id" class="w-full border rounded px-2 py-1">
+            <option value="none">None</option>
+            {% for c in cis %}
+              <option value="{{ c.id }}" {% if ticket.affected_ci_id==c.id %}selected{% endif %}>{{ c.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <button class="w-full bg-slate-800 hover:bg-slate-900 text-white rounded px-3 py-1.5 text-sm">Save</button>
+      </form>
+    </div>
+
+    <div class="bg-white border rounded-xl shadow-sm p-6">
+      <h3 class="font-semibold text-sm mb-2">Requester</h3>
+      <p class="text-sm">{{ ticket.requester.full_name }}</p>
+      <p class="text-xs text-slate-500">{{ ticket.requester.email }}</p>
+      {% if ticket.requester.department %}<p class="text-xs text-slate-500">{{ ticket.requester.department }}</p>{% endif %}
+    </div>
+  </aside>
+</div>
+{% endblock %}

@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}New ticket · SeriveNext{% endblock %}
+{% block content %}
+<div class="max-w-2xl mx-auto bg-white rounded-xl shadow-sm border p-6">
+  <h1 class="text-xl font-semibold mb-1">Open a new ticket</h1>
+  <p class="text-sm text-slate-500 mb-4">Our AI agent will try to answer immediately. If it can't, an agent will pick it up.</p>
+  <form method="post" action="/portal/new" class="space-y-4">
+    <div>
+      <label class="block text-sm font-medium text-slate-700">Subject</label>
+      <input name="subject" required maxlength="255" class="mt-1 w-full border rounded px-3 py-2" placeholder="Short summary of the issue" />
+    </div>
+    <div>
+      <label class="block text-sm font-medium text-slate-700">Description</label>
+      <textarea name="description" required rows="8" class="mt-1 w-full border rounded px-3 py-2" placeholder="What happened? What were you trying to do? Any error messages?"></textarea>
+    </div>
+    <div>
+      <label class="block text-sm font-medium text-slate-700">Affected asset (optional)</label>
+      <select name="affected_ci_id" class="mt-1 w-full border rounded px-3 py-2">
+        <option value="">None / not sure</option>
+        {% for ci in my_cis %}
+          <option value="{{ ci.id }}">{{ ci.name }} — {{ ci.ci_type.value|pretty }}{% if ci.asset_tag %} ({{ ci.asset_tag }}){% endif %}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="flex gap-2">
+      <button class="bg-emerald-600 hover:bg-emerald-700 text-white rounded px-4 py-2 text-sm font-medium">Submit</button>
+      <a href="/portal" class="text-sm py-2 px-2 text-slate-500 hover:text-slate-800">Cancel</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

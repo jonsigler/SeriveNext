@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}Sign in · SeriveNext{% endblock %}
+{% block content %}
+<div class="max-w-sm mx-auto mt-16 bg-white rounded-xl shadow p-8 border">
+  <h1 class="text-2xl font-semibold mb-1"><span class="text-emerald-600">Serive</span>Next</h1>
+  <p class="text-sm text-slate-500 mb-6">Open-source IT service management</p>
+  {% if error %}<div class="bg-red-50 text-red-700 text-sm p-2 rounded mb-4">{{ error }}</div>{% endif %}
+  <form method="post" action="/login" class="space-y-4">
+    <div>
+      <label class="block text-sm font-medium text-slate-700">Email</label>
+      <input name="email" type="email" required class="mt-1 w-full border rounded px-3 py-2 focus:outline-none focus:ring focus:ring-emerald-200" />
+    </div>
+    <div>
+      <label class="block text-sm font-medium text-slate-700">Password</label>
+      <input name="password" type="password" required class="mt-1 w-full border rounded px-3 py-2 focus:outline-none focus:ring focus:ring-emerald-200" />
+    </div>
+    <button class="w-full bg-emerald-600 hover:bg-emerald-700 text-white rounded py-2 font-medium">Sign in</button>
+  </form>
+  <p class="text-sm text-slate-500 mt-4">No account? <a class="text-emerald-700 underline" href="/register">Register</a></p>
+  <p class="text-xs text-slate-400 mt-6">Demo logins (after seeding): <code>admin@serivenext.local / admin123</code>, <code>agent@serivenext.local / agent123</code>, <code>user@serivenext.local / user1234</code></p>
+</div>
+{% endblock %}

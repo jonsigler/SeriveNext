@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% block title %}{{ ci.name }} · CMDB{% endblock %}
+{% block content %}
+<div class="grid md:grid-cols-3 gap-6">
+  <div class="md:col-span-2 space-y-6">
+    <div class="bg-white border rounded-xl shadow-sm p-6">
+      <div class="flex items-start justify-between">
+        <div>
+          <p class="text-xs uppercase text-slate-500">{{ ci.ci_type.value|pretty }}</p>
+          <h1 class="text-xl font-semibold">{{ ci.name }}</h1>
+          <p class="text-xs text-slate-500 mt-1">Status: {{ ci.status|pretty }}</p>
+        </div>
+        <a href="/agent/cmdb" class="text-sm text-slate-500 hover:underline">← All CIs</a>
+      </div>
+      <dl class="mt-4 grid grid-cols-2 gap-y-2 text-sm">
+        <dt class="text-slate-500">Asset tag</dt><dd class="font-mono">{{ ci.asset_tag or "—" }}</dd>
+        <dt class="text-slate-500">Serial</dt><dd class="font-mono">{{ ci.serial_number or "—" }}</dd>
+        <dt class="text-slate-500">Manufacturer</dt><dd>{{ ci.manufacturer or "—" }}</dd>
+        <dt class="text-slate-500">Model</dt><dd>{{ ci.model or "—" }}</dd>
+        <dt class="text-slate-500">Location</dt><dd>{{ ci.location or "—" }}</dd>
+        <dt class="text-slate-500">IP</dt><dd class="font-mono">{{ ci.ip_address or "—" }}</dd>
+        <dt class="text-slate-500">OS</dt><dd>{{ ci.os or "—" }}</dd>
+        <dt class="text-slate-500">Owner</dt><dd>{{ ci.owner.full_name if ci.owner else "—" }}</dd>
+      </dl>
+      {% if ci.description %}
+      <div class="mt-4 text-sm ticket-body">{{ ci.description }}</div>
+      {% endif %}
+    </div>
+
+    <div class="bg-white border rounded-xl shadow-sm">
+      <h2 class="px-6 pt-5 pb-2 font-semibold">Related tickets</h2>
+      <ul class="divide-y">
+        {% for t in related_tickets %}
+        <li class="px-6 py-3 text-sm flex items-center justify-between">
+          <div>
+            <a href="/agent/tickets/{{ t.id }}" class="text-emerald-700 hover:underline font-mono text-xs">{{ t.number }}</a>
+            <span class="ml-2">{{ t.subject }}</span>
+          </div>
+          <span class="text-xs rounded px-2 py-0.5 {{ t.status | status_badge }}">{{ t.status.value|pretty }}</span>
+        </li>
+        {% else %}
+        <li class="px-6 py-4 text-sm text-slate-500">No tickets on this CI yet.</li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+
+  <aside>
+    <div class="bg-white border rounded-xl shadow-sm p-6">
+      <h3 class="font-semibold text-sm mb-3">Edit</h3>
+      <form method="post" action="/agent/cmdb/{{ ci.id }}/update" class="space-y-2 text-sm">
+        <input name="name" value="{{ ci.name }}" class="w-full border rounded px-2 py-1" />
+        <select name="ci_type" class="w-full border rounded px-2 py-1">
+          {% for t in ci_types %}
+            <option value="{{ t.value }}" {% if ci.ci_type==t %}selected{% endif %}>{{ t.value|pretty }}</option>
+          {% endfor %}
+        </select>
+        <select name="status" class="w-full border rounded px-2 py-1">
+          {% for s in ["in_use","in_stock","maintenance","retired"] %}
+            <option value="{{ s }}" {% if ci.status==s %}selected{% endif %}>{{ s|pretty }}</option>
+          {% endfor %}
+        </select>
+        <input name="asset_tag" value="{{ ci.asset_tag or '' }}" placeholder="Asset tag" class="w-full border rounded px-2 py-1" />
+        <input name="serial_number" value="{{ ci.serial_number or '' }}" placeholder="Serial" class="w-full border rounded px-2 py-1" />
+        <input name="manufacturer" value="{{ ci.manufacturer or '' }}" placeholder="Manufacturer" class="w-full border rounded px-2 py-1" />
+        <input name="model" value="{{ ci.model or '' }}" placeholder="Model" class="w-full border rounded px-2 py-1" />
+        <input name="location" value="{{ ci.location or '' }}" placeholder="Location" class="w-full border rounded px-2 py-1" />
+        <input name="ip_address" value="{{ ci.ip_address or '' }}" placeholder="IP" class="w-full border rounded px-2 py-1" />
+        <input name="os" value="{{ ci.os or '' }}" placeholder="OS" class="w-full border rounded px-2 py-1" />
+        <select name="owner_id" class="w-full border rounded px-2 py-1">
+          <option value="">Unowned</option>
+          {% for u in users %}
+            <option value="{{ u.id }}" {% if ci.owner_id==u.id %}selected{% endif %}>{{ u.full_name }}</option>
+          {% endfor %}
+        </select>
+        <textarea name="description" rows="3" class="w-full border rounded px-2 py-1" placeholder="Description">{{ ci.description or '' }}</textarea>
+        <button class="w-full bg-slate-800 hover:bg-slate-900 text-white rounded px-3 py-1.5 text-sm">Save</button>
+      </form>
+    </div>
+  </aside>
+</div>
+{% endblock %}
