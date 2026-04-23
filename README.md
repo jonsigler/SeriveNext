@@ -86,6 +86,50 @@ rule-based agent. To plug in a local model:
 
 Any OpenAI-compatible endpoint works (LM Studio, vLLM, llama.cpp server, etc.).
 
+## Deploying (Fly.io, Docker, compose, VPS)
+
+The repo ships with a `Dockerfile`, a `docker-compose.yml`, and a `fly.toml` so
+you can put SeriveNext on the internet without extra plumbing.
+
+### Fly.io — free tier, HTTPS URL, ~2 minutes
+
+```bash
+# one-time
+curl -L https://fly.io/install.sh | sh
+fly auth signup                   # or: fly auth login
+
+# from inside the repo
+fly launch --copy-config --no-deploy
+fly volumes create serivenext_data --size 1
+fly secrets set SECRET_KEY="$(openssl rand -hex 32)"
+fly deploy
+fly open
+```
+
+You get a URL like `https://<your-app>.fly.dev`. The SQLite DB lives on a 1 GB
+persistent volume so deploys don't wipe data. On first boot the demo seed
+users are created; **change their passwords immediately** (or set
+`SEED_ON_START=0` in `fly.toml` and register users fresh).
+
+### Docker / docker-compose — any host that runs containers
+
+```bash
+export SECRET_KEY="$(openssl rand -hex 32)"
+docker compose up -d
+# → http://<host>:8000
+```
+
+The compose file mounts a named volume `serivenext_data` so the SQLite DB
+survives restarts. Drop it behind a reverse proxy (Caddy, nginx, Traefik) for
+HTTPS.
+
+### VPS (systemd)
+
+Build the image on the box (`docker build -t serivenext .`), then run it as a
+systemd-managed container — or skip Docker entirely and run `uvicorn` under a
+systemd unit. Either works; the Dockerfile encodes the right defaults either
+way.
+
 ## Switching to PostgreSQL
 
 Set `DATABASE_URL` in `.env`, e.g.:

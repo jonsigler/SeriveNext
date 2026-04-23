@@ -1,0 +1,18 @@
+services:
+  serivenext:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      SECRET_KEY: ${SECRET_KEY:-change-me-please}
+      AI_PROVIDER: ${AI_PROVIDER:-rule}
+      AI_BASE_URL: ${AI_BASE_URL:-http://host.docker.internal:11434/v1}
+      AI_API_KEY: ${AI_API_KEY:-ollama}
+      AI_MODEL: ${AI_MODEL:-llama3.1:8b}
+      SEED_ON_START: ${SEED_ON_START:-1}
+    volumes:
+      - serivenext_data:/data
+    restart: unless-stopped
+
+volumes:
+  serivenext_data:
